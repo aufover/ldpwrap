@@ -28,9 +28,6 @@
 #OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 #OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-COMPILERS="CC=gclang CXX=gclang++  CFLAGS='-g -Wno-unused-parameter -Wno-unknown-attributes -Wno-unused-label -Wno-unknown-pragmas -Wno-unused-command-line-argument -O0 -Xclang -disable-llvm-passes -D__inline=
-'"
-RPMBUILD_DEFINES="--define \"__cc gclang\" --define \"__cxx gclang++\" --define \"toolchain clang\" --define \"__spec_check_pre export LD_PRELOAD=/usr/lib64/ldpwrap.so %{___build_pre}\""
 
 
 
@@ -82,14 +79,14 @@ where OPTS can be following:
       -s=ARG|--srpm=ARG                                            ARG specifies the path to the tested source rpm
       -t={symbiotic,divine,cbmc}|--tool={symbiotic,divine,cbmc}    Specifies which tool shall be used, the initial version supports only symbiotic.
       -p=ARG|--prp=ARG                                             ARG specifies which property shall be tested, the possible values are the same as the one accepted by the tool (e.g. --prp OPT for symbiotic)
-      -w=NUM|--watchdog=NUN                                        Sets the tool timeout to NUM seconds, default value is 30
+      -m=NUM|--max-time=NUN                                        Sets the tool timeout to NUM seconds, default value is 30
       -l=DIR|--logdir=DIR                                          Specifies the directory, where the test results will be stored, default value is /tmp
 
-The -s -t and -p options must be specified
+The -s -t and and for symbiotic -p options must be specified
 EOF
 }
 
-if [ -z "$TOOL" ] || [ -z "$PRP"] || [ -z "$SRPM" ]
+if [ -z "$TOOL" ] || [ -z "$SRPM" ]
 then
     help
     exit 1
@@ -100,7 +97,22 @@ fi
 case $TOOL in
     symbiotic)
         set -o xtrace
-        WRAP_CMD=$'--skip-ld-linux\acsexec-symbiotic\a-l\a'"$LOGDIR"$'\a-s\a--prp='"$PRP\ --timeout=$TIMEOUT"
+	if [ -z "$PRP" ]
+	then
+   		help
+   		exit 1
+	fi
+	COMPILERS="CC=gclang CXX=gclang++  CFLAGS='-g -Wno-unused-parameter -Wno-unknown-attributes -Wno-unused-label -Wno-unknown-pragmas -Wno-unused-command-line-argument -O0 -Xclang -disable-llvm-passes -D__inline='"
+	RPMBUILD_DEFINES="--define \"__cc gclang\" --define \"__cxx gclang++\" --define \"toolchain clang\" --define \"__spec_check_pre export LD_PRELOAD=/usr/lib64/ldpwrap.so %{___build_pre}\""
+        
+	WRAP_CMD=$'--skip-ld-linux\acsexec-symbiotic\a-l\a'"$LOGDIR"$'\a-s\a--prp='"$PRP\ --timeout=$TIMEOUT"
+        bash -c "$COMPILERS CSEXEC_WRAP_CMD=$WRAP_CMD rpmbuild $RPMBUILD_DEFINES -ri $SRPM"
+        ;;
+    divine)
+	COMPILERS="CC=dioscc CXX=diosc++  CFLAGS='-g -Wno-unused-parameter -Wno-unknown-attributes -Wno-unused-label -Wno-unknown-pragmas -Wno-unused-command-line-argument -O0"
+	RPMBUILD_DEFINES="--define \"__cc dioscc\" --define \"__cxx diosc++\" --define \"__spec_check_pre export LD_PRELOAD=/usr/lib64/ldpwrap.so %{___build_pre}\""
+        
+	WRAP_CMD=$'--skip-ld-linux\acsexec-divine\a-l\a'"$LOGDIR"$'\a-d\acheck\a\ --max-time\ $TIMEOUT"'
         bash -c "$COMPILERS CSEXEC_WRAP_CMD=$WRAP_CMD rpmbuild $RPMBUILD_DEFINES -ri $SRPM"
         ;;
     *)
