@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 #Copyright (c) 2020, Red Hat, Inc.
 #All rights reserved.
@@ -96,12 +96,18 @@ fi
 
 case $TOOL in
     symbiotic)
+
+	command -v symbiotic >/dev/null || { echo "Symbiotic does not seem to be installed!"; exit 1; }
+
         set -o xtrace
 	if [ -z "$PRP" ]
 	then
    		help
    		exit 1
 	fi
+	
+
+
 	COMPILERS="CC=gclang CXX=gclang++  CFLAGS='-g -Wno-unused-parameter -Wno-unknown-attributes -Wno-unused-label -Wno-unknown-pragmas -Wno-unused-command-line-argument -O0 -Xclang -disable-llvm-passes -D__inline='"
 	RPMBUILD_DEFINES="--define \"__cc gclang\" --define \"__cxx gclang++\" --define \"toolchain clang\" --define \"__spec_check_pre export LD_PRELOAD=/usr/lib64/ldpwrap.so %{___build_pre}\""
         
@@ -109,10 +115,15 @@ case $TOOL in
         bash -c "$COMPILERS CSEXEC_WRAP_CMD=$WRAP_CMD rpmbuild $RPMBUILD_DEFINES -ri $SRPM"
         ;;
     divine)
-	COMPILERS="CC=dioscc CXX=diosc++  CFLAGS='-g -Wno-unused-parameter -Wno-unknown-attributes -Wno-unused-label -Wno-unknown-pragmas -Wno-unused-command-line-argument -O0"
-	RPMBUILD_DEFINES="--define \"__cc dioscc\" --define \"__cxx diosc++\" --define \"__spec_check_pre export LD_PRELOAD=/usr/lib64/ldpwrap.so %{___build_pre}\""
+
+	command -v divine >/dev/null || { echo "Divine does not seem to be installed!"; exit 1; }
+
+	#currently needs: ln -s /usr/lib64/LLVMgold.so /usr/lib/LLVMgold.so
+	COMPILERS="CC=dioscc CXX=diosc++  CFLAGS='-g -Wno-unused-parameter -Wno-unknown-attributes -Wno-unused-label -Wno-unknown-pragmas -Wno-unused-command-line-argument -O0 -disable-llvm-passes -D_inline='"
+	RPMBUILD_DEFINES="--define \"__cc dioscc\" --define \"__cxx diosc++\" --define \"toolchain clang\" --define \"__spec_check_pre export LD_PRELOAD=/usr/lib64/ldpwrap.so %{___build_pre}\""
         
-	WRAP_CMD=$'--skip-ld-linux\acsexec-divine\a-l\a'"$LOGDIR"$'\a-d\acheck\a\ --max-time\ $TIMEOUT"'
+	#WRAP_CMD=$'--skip-ld-linux\acsexec-divine\a-l\a'"$LOGDIR"$'\a-d\acheck\a--max-time\ '"$TIMEOUT"
+	WRAP_CMD=$'--skip-ld-linux\acsexec-divine\a-l\a'"$LOGDIR"$'\a-d\acheck\ --max-time\ '"$TIMEOUT"
         bash -c "$COMPILERS CSEXEC_WRAP_CMD=$WRAP_CMD rpmbuild $RPMBUILD_DEFINES -ri $SRPM"
         ;;
     *)

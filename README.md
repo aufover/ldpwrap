@@ -4,3 +4,6 @@ The packaging folder contains a make_srpm.sh script. Running this script will cr
 
 ## Running the tool
 The tool can be run by the /usr/bin/ldp_run script contained in the package.
+
+##Divine
+Currently needs ln -s /usr/lib64/LLVMgold.so /usr/lib/LLVMgold.so to run
