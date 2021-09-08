@@ -57,7 +57,7 @@ case $i in
     PRP="${i#*=}"
     shift # past argument=value
     ;;
-    -w=*|--watchdog=*)
+    -m=*|--max-time=*)
     TIMEOUT="${i#*=}"
     shift # past argument=value
     ;;
