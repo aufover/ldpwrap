@@ -19,5 +19,5 @@ An example of usage of [cbmc](https://github.com/diffblue/cbmc) and ldpwrapper:
 ```bash
 koji download-build -a src logrotate-3.18.0-3.fc34 # get package which you want to analyze, in this example the logrotate package is used
 # run cbmc analysis on choosed package:
-/usr/bin/ldp_run --srpm=/logrotate-3.18.0-3.fc34.src.rpm --tool=cbmc --prp='--unwind 1 --pointer-check' --logdir=<logs_file> --timeout=10
+/usr/bin/ldp_run --srpm=/logrotate-3.18.0-3.fc34.src.rpm --tool=cbmc --prp='--unwind 1 --pointer-check' --logdir=<logs_file> --max-time=10
 ```
