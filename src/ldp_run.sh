@@ -114,6 +114,24 @@ case $TOOL in
 	WRAP_CMD=$'--skip-ld-linux\acsexec-symbiotic\a-l\a'"$LOGDIR"$'\a-s\a--prp='"$PRP\ --timeout=$TIMEOUT"
         bash -c "$COMPILERS CSEXEC_WRAP_CMD=$WRAP_CMD rpmbuild $RPMBUILD_DEFINES -ri $SRPM"
         ;;
+    cbmc)
+
+        command -v cbmc >/dev/null || { echo "CBMC does not seem to be installed!"; exit 1; }
+
+        set -o xtrace
+        if [ -z "$PRP" ]
+        then
+                help
+                exit 1
+        fi
+        echo ${PRP// /\\ }
+
+        COMPILERS="CC=goto-gcc CFLAGS='-g -Wno-shadow -Wno-unused-parameter -Wno-unknown-attributes -Wno-unused-label -Wno-unknown-pragmas -Wno-unused-command-line-argument -O0'"
+        RPMBUILD_DEFINES="--define \"__ld goto-ld\" --define \"__cc goto-gcc\" --define \"build_ldflags -O0\" --define \"toolchain gcc\" --define \"__spec_check_pre export LD_PRELOAD=/usr/lib64/ldpwrap.so %{___build_pre}\""
+
+        WRAP_CMD=$'--skip-ld-linux\acsexec-cbmc\a-t\a'"$TIMEOUT"$'\a-l\a'"$LOGDIR"$'\a-c\a'"${PRP// /\\ }"
+        bash -c "$COMPILERS CSEXEC_WRAP_CMD=$WRAP_CMD rpmbuild $RPMBUILD_DEFINES -ri $SRPM"
+        ;;
     divine)
 
 	command -v divine >/dev/null || { echo "Divine does not seem to be installed!"; exit 1; }
