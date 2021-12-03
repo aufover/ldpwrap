@@ -1,6 +1,6 @@
 Name:    ldpwrap
 Version: 1.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: Tool for running source code analyzers
 
 
@@ -8,11 +8,17 @@ License: BSD
 Source0: %{name}.tar.gz
 
 BuildRequires: gcc
+
+%description
+ldpwrap contains a library that can be used to override the standard rpm build process and run code analyzers during the check section of the build
+
+%package utils
+Summary: A wrapper script for the ldpwrap library
 Requires: csexec gllvm
 Recommends: symbiotic divine
 
-%description
-ldpwrap contains a library and script that overrides the standard rpm build process and runs code analyzers during the check section of the build
+%description utils
+This subpackage contains a wrapper script that uses the ldpwrap library to override the standard rpm build process and runs code analyzers during the check section of the build
 
 %prep
 pwd
@@ -39,11 +45,14 @@ install -m 755 ldp_run.sh $RPM_BUILD_ROOT/usr/bin/ldp_run
 
 %files
 /usr/lib64/*
-/usr/bin/*
 %doc
 
-
+%files utils
+/usr/bin/*
 
 %changelog
+* Wed May 12 2021 Jakub Martisko <jamartis@redhat.com> - 1.0-2
+- split the package into the main package and utils subpackage
+
 * Wed May 12 2021 Jakub Martisko <jamartis@redhat.com> - 1.0-1
 - Initial Release
