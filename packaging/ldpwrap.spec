@@ -34,7 +34,7 @@ cp ./* ../../BUILD
 #Possible macros are -DDEBUG and -DCSEXEC_PATH=/USR/BIN/CSEXEC
 #If DEBUG is defined, debug messages are printed during the execution
 #CSEXEC_PATH overrides the path to csexec
-gcc $(MACROS) -shared -fPIC ./ldpreload_wrap.c -o ldpwrap.so -ldl
+gcc $MACROS -shared -fPIC ./ldpreload_wrap.c -o ldpwrap.so -ldl
 
 
 %install
