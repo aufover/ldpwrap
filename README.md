@@ -1,4 +1,5 @@
 # ldpwrap
+A shared library that can be preloaded to instrument the main() function of programs being executed
 ## Compilation
 The packaging folder contains a make_srpm.sh script. Running this script will create a source rpm that can be build and installed in the standard way.
 ```bash
